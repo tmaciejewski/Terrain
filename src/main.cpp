@@ -28,6 +28,7 @@
 #include <vector>
 
 #include "../config.h"
+#include "terrain.h"
 
 class Game
 {
@@ -181,8 +182,12 @@ class Game
     }
 };
 
-int main()
+int main(int argc, char **argv)
 {
-    Game game(800, 600);
-    return game.run();
+    //Game game(800, 600);
+    //return game.run();
+
+    Terrain t;
+    t.loadFromSTRM(argc < 2 ? "N45E006.hgt" : argv[1]);
+    return 0;
 }
