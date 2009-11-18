@@ -21,22 +21,29 @@
 #ifndef TERRAIN_H
 #define TERRAIN_H
 
-
+#include <GL/gl.h>
 
 class Terrain
 {
     public:
+
+        enum RenderType {RT_BE, RT_VA, RT_VBO};
+
         Terrain();
         virtual ~Terrain();
 
-        void display();
+        void display(const RenderType rt = RT_BE);
         void loadFromSTRM(const char *filename);
 
     private:
 
-        int *vertices;
+        int *vertices, w, h;
 
         void freeVertices();
+        void displayBE();
+        void displayVA();
+        void displayVBO();
+        void setColor(GLfloat h);
 
 };
 

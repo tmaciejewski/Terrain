@@ -20,6 +20,7 @@
 #include <GL/glu.h>
 #include <GL/gl.h>
 #include <SDL/SDL.h>
+#include <sstream>
 #include <iostream>
 #include <cstdlib>
 #include <cmath>
@@ -35,36 +36,11 @@ class Game
     GLsizei screenWidth, screenHeight;
     std::vector<bool> keyPressed;
     bool fullScreen;
-    GLfloat x, y, z, hAngle, vAngle;
-
+    Terrain terrain;
 
     void update()
     {
-        if (keyPressed[SDLK_LEFT])
-            hAngle -= 0.01;
 
-        if (keyPressed[SDLK_RIGHT])
-            hAngle += 0.01;
-
-        if (keyPressed[SDLK_PAGEUP])
-            vAngle += 0.01;
-
-        if (keyPressed[SDLK_PAGEDOWN])
-            vAngle -= 0.01;
-
-        if (keyPressed[SDLK_UP])
-        {
-            y += sin(vAngle);
-            x += cos(vAngle)*sin(hAngle);
-            z -= cos(vAngle)*cos(hAngle);
-        }
-
-        if (keyPressed[SDLK_DOWN])
-        {
-            y -= sin(vAngle);
-            x -= cos(vAngle)*sin(hAngle);
-            z += cos(vAngle )*cos(hAngle);
-        }
     }
 
     void resize()
@@ -73,8 +49,7 @@ class Game
         glViewport(0, 0, screenWidth, screenHeight);
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
-        gluPerspective(60.0, screenWidth / screenHeight, 1.0, 1000.0);
-
+        glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
         glMatrixMode(GL_MODELVIEW);
     }
 
@@ -84,11 +59,16 @@ class Game
 
         glLoadIdentity();
 
-        glRotatef(-vAngle * (180.0 / M_PI), 1.0, 0.0, 0.0);
-        glRotatef(hAngle * (180.0 / M_PI), 0.0, 1.0, 0.0);
-        glTranslatef(-x, -y, -z);
+        glTranslatef(0, 0, -1);
 
-        // ...
+        terrain.display();
+
+        //glColor3f(1.0, 0.0, 0.0);
+        //glBegin(GL_TRIANGLES);
+            //glVertex2f(0.0, 0.7);
+            //glVertex2f(0.7, -0.7);
+            //glVertex2f(-0.7, -0.7);
+        //glEnd();
 
         glFlush();
     }
@@ -109,32 +89,27 @@ class Game
 
     void initGL()
     {
-        glClearColor(0.4, 0.4, 1.0, 0.0);
+        glClearColor(0.0, 0.0, 0.0, 0.0);
 
         // depth buffer
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LEQUAL);
-
-        // perspective correction
-        glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-
-        // culling
-        glEnable(GL_CULL_FACE);
     }
 
     public:
 
-    Game(unsigned w, unsigned h, bool fullscreen = false) : screenWidth(w),
-        screenHeight(h), keyPressed(SDLK_LAST, false), fullScreen(fullscreen),
-        x(-5.0), y(20.0), hAngle(M_PI_2), vAngle(-M_PI_4)
+    Game(unsigned w, unsigned h, bool fullscreen = false)
+        : screenWidth(w), screenHeight(h), keyPressed(SDLK_LAST, false),
+          fullScreen(fullscreen), terrain()
     {
         srand(time(0));
     }
 
-    int run()
+    int run(const char *filename)
     {
         SDL_Surface *surface = NULL;
         SDL_Event event;
+        unsigned frames = 0, ticks = 0;
 
         if (SDL_Init(SDL_INIT_VIDEO) < 0)
         {
@@ -146,12 +121,32 @@ class Game
 
         SDL_WM_SetCaption(PACKAGE_STRING, NULL);
 
+        terrain.loadFromSTRM(filename);
+
         initGL();
 
         while (!keyPressed[SDLK_ESCAPE] && event.type != SDL_QUIT)
         {
+            unsigned t;
+
             update();
+            t = SDL_GetTicks();
             display();
+            ticks += SDL_GetTicks() - t;
+            ++frames;
+
+            if (ticks > 1000)
+            {
+                std::string s;
+                std::ostringstream str;
+                float FPS;
+                FPS = (1000.0 * frames) / ticks;
+                ticks = frames = 0;
+                str << PACKAGE_NAME << ", FPS: " << FPS;
+                s = str.str();
+                SDL_WM_SetCaption(s.c_str(), NULL);
+            }
+
             SDL_GL_SwapBuffers();
 
             while (SDL_PollEvent(&event))
@@ -170,6 +165,7 @@ class Game
                         SDL_FreeSurface(surface);
 
                     surface = setVideoMode();
+                    resize();
                 }
             }
 
@@ -184,10 +180,6 @@ class Game
 
 int main(int argc, char **argv)
 {
-    //Game game(800, 600);
-    //return game.run();
-
-    Terrain t;
-    t.loadFromSTRM(argc < 2 ? "N45E006.hgt" : argv[1]);
-    return 0;
+    Game game(600, 600);
+    return game.run(argc < 2 ? "N45E006.hgt" : argv[1]);
 }
