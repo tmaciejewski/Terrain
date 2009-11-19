@@ -61,7 +61,7 @@ class Game
 
         glTranslatef(0, 0, -1);
 
-        terrain.display();
+        terrain.display(Terrain::RT_VA);
 
         //glColor3f(1.0, 0.0, 0.0);
         //glBegin(GL_TRIANGLES);
@@ -142,7 +142,7 @@ class Game
                 float FPS;
                 FPS = (1000.0 * frames) / ticks;
                 ticks = frames = 0;
-                str << PACKAGE_NAME << ", FPS: " << FPS;
+                str << PACKAGE_STRING << ", FPS: " << FPS;
                 s = str.str();
                 SDL_WM_SetCaption(s.c_str(), NULL);
             }
@@ -169,7 +169,7 @@ class Game
                 }
             }
 
-            usleep(10000);
+            usleep(50000);
         }
 
         SDL_Quit();

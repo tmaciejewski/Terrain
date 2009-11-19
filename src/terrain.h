@@ -22,6 +22,7 @@
 #define TERRAIN_H
 
 #include <GL/gl.h>
+#include <vector>
 
 class Terrain
 {
@@ -37,13 +38,17 @@ class Terrain
 
     private:
 
-        int *vertices, w, h;
+        GLfloat *vertices, *colors;
+        int w, h;
+        std::vector<int> heights;
 
         void freeVertices();
+        void createVertices();
+
         void displayBE();
         void displayVA();
         void displayVBO();
-        void setColor(GLfloat h);
+        void setColor(GLfloat h, GLfloat &r, GLfloat &g, GLfloat &b);
 
 };
 
