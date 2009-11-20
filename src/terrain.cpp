@@ -52,7 +52,6 @@ void Terrain::loadFromSTRM(const char *filename)
     }
 
     w = h = 1201;
-    //w = h = 100;
 
     createVertices();
 }
@@ -88,6 +87,8 @@ void Terrain::createVertices()
             v += 3;
         }
     }
+
+    initVBO();
 }
 
 void Terrain::freeVertices()
@@ -108,6 +109,8 @@ void Terrain::display(const RenderType rt)
         displayBE();
     else if (rt == RT_VA)
         displayVA();
+    else if (rt == RT_VBO)
+        displayVBO();
 
     glPopMatrix();
 }
@@ -120,19 +123,19 @@ void Terrain::setColor(GLfloat h, GLfloat &r, GLfloat &g, GLfloat &b)
         g = 0.0;
         b = 1.0;
     }
-    else if (h < 500)
+    else if (h <= 500)
     {
         r = 0.0;
         g = h / 500.0;
         b = 0.0;
     }
-    else if (h < 1000)
+    else if (h <= 1000)
     {
         r = (h - 500.0) / 500.0;
         g = 1.0;
         b = 0.0;
     }
-    else if (h < 1500)
+    else if (h <= 1500)
     {
         r = 1.0;
         g = 1.0 - (h - 1000.0) / 500.0;
@@ -140,7 +143,7 @@ void Terrain::setColor(GLfloat h, GLfloat &r, GLfloat &g, GLfloat &b)
     }
     else
     {
-        r = 1.0 - (h - 1500.0) / 8000.0;
+        r = 1.0 - (h - 1500.0) / 6000.0;
         g = 0.0;
         b = 0.0;
     }
@@ -148,15 +151,13 @@ void Terrain::setColor(GLfloat h, GLfloat &r, GLfloat &g, GLfloat &b)
 
 void Terrain::displayBE()
 {
-    if (h < 2 || w < 2)
-        return;
-
     for (int i = 0; i < h - 1; ++i)
     {
         glBegin(GL_QUAD_STRIP);
-        for (int j = 0; j < 2*w; ++j)
+        for (int j = 0; j < 2 * w; ++j)
         {
             int index = 3 * (i * 2 * w + j);
+
             glColor3f(colors[index], colors[index + 1], colors[index + 2]);
             glVertex3f(vertices[index], vertices[index + 1], vertices[index + 2]);
         }
@@ -166,9 +167,34 @@ void Terrain::displayBE()
 
 void Terrain::displayVA()
 {
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
     glVertexPointer(3, GL_FLOAT, sizeof(GLfloat)*3, vertices);
     glColorPointer(3, GL_FLOAT, sizeof(GLfloat)*3, colors);
+    drawArrays();
+}
 
+void Terrain::initVBO()
+{
+    glGenBuffers(1, &vertex_buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glGenBuffers(1, &color_buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, color_buffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
+}
+
+void Terrain::displayVBO()
+{
+    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
+    glVertexPointer(3, GL_FLOAT, sizeof(GLfloat)*3, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, color_buffer);
+    glColorPointer(3, GL_FLOAT, sizeof(GLfloat)*3, 0);
+    drawArrays();
+}
+
+void Terrain::drawArrays()
+{
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
 

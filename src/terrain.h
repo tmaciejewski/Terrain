@@ -22,6 +22,7 @@
 #define TERRAIN_H
 
 #include <GL/gl.h>
+#include <GL/glext.h>
 #include <vector>
 
 class Terrain
@@ -40,11 +41,13 @@ class Terrain
 
         GLfloat *vertices, *colors;
         int w, h;
+        GLuint vertex_buffer, color_buffer;
         std::vector<int> heights;
 
         void freeVertices();
         void createVertices();
-
+        void initVBO();
+        void drawArrays();
         void displayBE();
         void displayVA();
         void displayVBO();

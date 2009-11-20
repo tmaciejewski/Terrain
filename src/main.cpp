@@ -37,10 +37,16 @@ class Game
     std::vector<bool> keyPressed;
     bool fullScreen;
     Terrain terrain;
+    Terrain::RenderType rt;
 
     void update()
     {
-
+        if (keyPressed['5'])
+            rt = Terrain::RT_BE;
+        else if (keyPressed['6'])
+            rt = Terrain::RT_VA;
+        else if (keyPressed['7'])
+            rt = Terrain::RT_VBO;
     }
 
     void resize()
@@ -59,9 +65,9 @@ class Game
 
         glLoadIdentity();
 
-        glTranslatef(0, 0, -1);
+        //glTranslatef(0, 0, -1);
 
-        terrain.display(Terrain::RT_VA);
+        terrain.display(rt);
 
         //glColor3f(1.0, 0.0, 0.0);
         //glBegin(GL_TRIANGLES);
@@ -100,7 +106,7 @@ class Game
 
     Game(unsigned w, unsigned h, bool fullscreen = false)
         : screenWidth(w), screenHeight(h), keyPressed(SDLK_LAST, false),
-          fullScreen(fullscreen), terrain()
+          fullScreen(fullscreen), terrain(), rt(Terrain::RT_VBO)
     {
         srand(time(0));
     }
