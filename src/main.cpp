@@ -141,7 +141,7 @@ class Game
             ticks += SDL_GetTicks() - t;
             ++frames;
 
-            if (ticks > 1000)
+            if (ticks > 1000 || frames > 100)
             {
                 std::string s;
                 std::ostringstream str;

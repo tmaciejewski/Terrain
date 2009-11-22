@@ -59,14 +59,14 @@ void Terrain::loadFromSTRM(const char *filename)
 void Terrain::createVertices()
 {
     int v = 0, c = 0;
-    const int count = 6 * w * (h - 1);
+    verticesCount = 6 * w * (h - 1);
 
-    vertices = new GLfloat[count];
-    colors = new GLfloat[count];
+    vertices = new GLfloat[verticesCount];
+    colors = new GLfloat[verticesCount];
 
-    for (int i = 0; i < h - 1; ++i)
+    for (unsigned i = 0; i < h - 1; ++i)
     {
-        for (int j = 0; j < w; ++j)
+        for (unsigned j = 0; j < w; ++j)
         {
             GLfloat x = GLfloat(2*j) / (w - 1), y2 = GLfloat(2*(i + 1)) / (h - 1),
                 y1 = GLfloat(2*i) / (h - 1), h2 = heights[w * (i + 1) + j],
@@ -151,10 +151,10 @@ void Terrain::setColor(GLfloat h, GLfloat &r, GLfloat &g, GLfloat &b)
 
 void Terrain::displayBE()
 {
-    for (int i = 0; i < h - 1; ++i)
+    for (unsigned i = 0; i < h - 1; ++i)
     {
         glBegin(GL_QUAD_STRIP);
-        for (int j = 0; j < 2 * w; ++j)
+        for (unsigned j = 0; j < 2 * w; ++j)
         {
             int index = 3 * (i * 2 * w + j);
 
@@ -177,11 +177,11 @@ void Terrain::initVBO()
 {
     glGenBuffers(1, &vertex_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, verticesCount * sizeof(GLfloat), vertices, GL_STATIC_DRAW);
 
     glGenBuffers(1, &color_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, color_buffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, verticesCount * sizeof(GLfloat), colors, GL_STATIC_DRAW);
 }
 
 void Terrain::displayVBO()
@@ -198,7 +198,7 @@ void Terrain::drawArrays()
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
 
-    for (int i = 0; i < h - 1; ++i)
+    for (unsigned i = 0; i < h - 1; ++i)
     {
         glDrawArrays(GL_QUAD_STRIP, i*2*w, 2*w);
     }

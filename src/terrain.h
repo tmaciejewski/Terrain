@@ -40,7 +40,7 @@ class Terrain
     private:
 
         GLfloat *vertices, *colors;
-        int w, h;
+        unsigned w, h, verticesCount;
         GLuint vertex_buffer, color_buffer;
         std::vector<int> heights;
 
