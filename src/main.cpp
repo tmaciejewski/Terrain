@@ -76,9 +76,6 @@ class Game
 
         glLoadIdentity();
 
-        //glTranslatef(-3.0, -2.0, -1.0);
-        //glRotate()
-
         if (sceneType & S_TERRAIN)
             terrain.display(rt);
 
@@ -138,7 +135,7 @@ class Game
         SDL_WM_SetCaption(PACKAGE_STRING, NULL);
 
         terrain.loadFromSTRM(filename);
-        triangles.init();
+        triangles.init(100);
 
         initGL();
 

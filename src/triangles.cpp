@@ -29,7 +29,7 @@ Triangles::Triangles()
 
 void Triangles::createVertices()
 {
-    verticesCount = 300 * 9;
+    verticesCount = triangles * 9;
 
     vertices = new GLfloat[verticesCount];
     colors = new GLfloat[verticesCount];
@@ -81,7 +81,7 @@ void Triangles::drawArrays()
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
 
-    glDrawArrays(GL_TRIANGLES, 0, verticesCount / 3);
+    glDrawArrays(GL_TRIANGLES, 0, triangles * 3);
 
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_COLOR_ARRAY);
