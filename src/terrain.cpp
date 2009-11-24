@@ -23,7 +23,7 @@
 #include <iostream>
 #include <climits>
 
-Terrain::Terrain() : vertices(NULL), colors(NULL)
+Terrain::Terrain()
 {
 
 }
@@ -91,30 +91,6 @@ void Terrain::createVertices()
     initVBO();
 }
 
-void Terrain::freeVertices()
-{
-    if (vertices)
-        delete[] vertices;
-
-    if (colors)
-        delete[] colors;
-}
-
-void Terrain::display(const RenderType rt)
-{
-    glPushMatrix();
-    glTranslatef(-1.0, -1.0, 0.0);
-
-    if (rt == RT_BE)
-        displayBE();
-    else if (rt == RT_VA)
-        displayVA();
-    else if (rt == RT_VBO)
-        displayVBO();
-
-    glPopMatrix();
-}
-
 void Terrain::setColor(GLfloat h, GLfloat &r, GLfloat &g, GLfloat &b)
 {
     if (h <= 0)
@@ -165,23 +141,13 @@ void Terrain::displayBE()
     }
 }
 
+
 void Terrain::displayVA()
 {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glVertexPointer(3, GL_FLOAT, sizeof(GLfloat)*3, vertices);
     glColorPointer(3, GL_FLOAT, sizeof(GLfloat)*3, colors);
     drawArrays();
-}
-
-void Terrain::initVBO()
-{
-    glGenBuffers(1, &vertex_buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
-    glBufferData(GL_ARRAY_BUFFER, verticesCount * sizeof(GLfloat), vertices, GL_STATIC_DRAW);
-
-    glGenBuffers(1, &color_buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, color_buffer);
-    glBufferData(GL_ARRAY_BUFFER, verticesCount * sizeof(GLfloat), colors, GL_STATIC_DRAW);
 }
 
 void Terrain::displayVBO()
@@ -192,6 +158,7 @@ void Terrain::displayVBO()
     glColorPointer(3, GL_FLOAT, sizeof(GLfloat)*3, 0);
     drawArrays();
 }
+
 
 void Terrain::drawArrays()
 {

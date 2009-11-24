@@ -1,4 +1,4 @@
-//      terrain.h
+//      scene.h
 //
 //      Copyright 2009 Tomasz Maciejewski <ponton@jabster.pl>
 //
@@ -18,36 +18,36 @@
 //      MA 02110-1301, USA.
 
 
-#ifndef TERRAIN_H
-#define TERRAIN_H
+#ifndef SCENE_H
+#define SCENE_H
 
 #include <GL/gl.h>
-#include <GL/glext.h>
-#include <vector>
 
-#include "scene.h"
-
-class Terrain : public Scene
+class Scene
 {
     public:
+        Scene();
+        virtual ~Scene();
 
-        Terrain();
-        virtual ~Terrain();
+        enum RenderType {RT_BE, RT_VA, RT_VBO};
 
-        void loadFromSTRM(const char *filename);
+        void display(const RenderType rt = RT_BE);
 
-    private:
+    protected:
 
-        unsigned w, h;
-        std::vector<int> heights;
+        GLfloat *vertices, *colors;
+        unsigned verticesCount;
+        GLuint vertex_buffer, color_buffer;
 
-        void displayBE();
-        void displayVA();
-        void displayVBO();
-        void createVertices();
-        void setColor(GLfloat h, GLfloat &r, GLfloat &g, GLfloat &b);
+        void freeVertices();
+        virtual void createVertices() = 0;
 
-        void drawArrays();
+        virtual void initVBO();
+        virtual void displayBE() =0;
+        virtual void displayVA() = 0;
+        virtual void displayVBO() = 0;
+
+        virtual void setColor(GLfloat h, GLfloat &r, GLfloat &g, GLfloat &b) = 0;
 };
 
-#endif /* TERRAIN_H */
+#endif /* SCENE_H */

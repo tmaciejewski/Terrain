@@ -1,4 +1,4 @@
-//      terrain.h
+//      scene.cpp
 //
 //      Copyright 2009 Tomasz Maciejewski <ponton@jabster.pl>
 //
@@ -18,36 +18,51 @@
 //      MA 02110-1301, USA.
 
 
-#ifndef TERRAIN_H
-#define TERRAIN_H
-
-#include <GL/gl.h>
-#include <GL/glext.h>
-#include <vector>
-
 #include "scene.h"
 
-class Terrain : public Scene
+
+Scene::Scene() : vertices(NULL), colors(NULL)
 {
-    public:
 
-        Terrain();
-        virtual ~Terrain();
+}
 
-        void loadFromSTRM(const char *filename);
 
-    private:
+Scene::~Scene()
+{
 
-        unsigned w, h;
-        std::vector<int> heights;
+}
 
-        void displayBE();
-        void displayVA();
-        void displayVBO();
-        void createVertices();
-        void setColor(GLfloat h, GLfloat &r, GLfloat &g, GLfloat &b);
+void Scene::freeVertices()
+{
+    if (vertices)
+        delete[] vertices;
 
-        void drawArrays();
-};
+    if (colors)
+        delete[] colors;
+}
 
-#endif /* TERRAIN_H */
+void Scene::display(const RenderType rt)
+{
+    glPushMatrix();
+    glTranslatef(-1.0, -1.0, 0.0);
+
+    if (rt == RT_BE)
+        displayBE();
+    else if (rt == RT_VA)
+        displayVA();
+    else if (rt == RT_VBO)
+        displayVBO();
+
+    glPopMatrix();
+}
+
+void Scene::initVBO()
+{
+    glGenBuffers(1, &vertex_buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
+    glBufferData(GL_ARRAY_BUFFER, verticesCount * sizeof(GLfloat), vertices, GL_STATIC_DRAW);
+
+    glGenBuffers(1, &color_buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, color_buffer);
+    glBufferData(GL_ARRAY_BUFFER, verticesCount * sizeof(GLfloat), colors, GL_STATIC_DRAW);
+}
