@@ -29,7 +29,7 @@ Scene::Scene() : vertices(NULL), colors(NULL)
 
 Scene::~Scene()
 {
-
+    freeVertices();
 }
 
 void Scene::freeVertices()

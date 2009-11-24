@@ -1,4 +1,4 @@
-//      scene.h
+//      triangles.h
 //
 //      Copyright 2009 Tomasz Maciejewski <ponton@jabster.pl>
 //
@@ -18,34 +18,27 @@
 //      MA 02110-1301, USA.
 
 
-#ifndef SCENE_H
-#define SCENE_H
+#ifndef TRIANGLES_H
+#define TRIANGLES_H
 
-#include <GL/gl.h>
+#include "scene.h"
 
-class Scene
+class Triangles: public Scene
 {
     public:
-        Scene();
-        virtual ~Scene();
+        Triangles();
 
-        enum RenderType {RT_BE, RT_VA, RT_VBO};
+        void init() { createVertices(); }
 
-        void display(const RenderType rt = RT_BE);
+    private:
 
-    protected:
+        void createVertices();
 
-        GLfloat *vertices, *colors;
-        unsigned verticesCount;
-        GLuint vertex_buffer, color_buffer;
+        void displayBE();
+        void displayVA();
+        void displayVBO();
 
-        void freeVertices();
-        virtual void createVertices() = 0;
-
-        virtual void initVBO();
-        virtual void displayBE() =0;
-        virtual void displayVA() = 0;
-        virtual void displayVBO() = 0;
+        void drawArrays();
 };
 
-#endif /* SCENE_H */
+#endif /* TRIANGLES_H */

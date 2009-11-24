@@ -30,6 +30,7 @@
 
 #include "../config.h"
 #include "terrain.h"
+#include "triangles.h"
 
 class Game
 {
@@ -37,16 +38,26 @@ class Game
     std::vector<bool> keyPressed;
     bool fullScreen;
     Terrain terrain;
-    Terrain::RenderType rt;
+    Triangles triangles;
+    Scene::RenderType rt;
+
+    enum SceneType {S_ALL = 3, S_TERRAIN = 2, S_TRIANGLES = 1} sceneType;
 
     void update()
     {
+        if (keyPressed['1'])
+            sceneType = S_TERRAIN;
+        else if (keyPressed['2'])
+            sceneType = S_TRIANGLES;
+        else if (keyPressed['3'])
+            sceneType = S_ALL;
+
         if (keyPressed['5'])
-            rt = Terrain::RT_BE;
+            rt = Scene::RT_BE;
         else if (keyPressed['6'])
-            rt = Terrain::RT_VA;
+            rt = Scene::RT_VA;
         else if (keyPressed['7'])
-            rt = Terrain::RT_VBO;
+            rt = Scene::RT_VBO;
     }
 
     void resize()
@@ -65,16 +76,14 @@ class Game
 
         glLoadIdentity();
 
-        //glTranslatef(0, 0, -1);
+        //glTranslatef(-3.0, -2.0, -1.0);
+        //glRotate()
 
-        terrain.display(rt);
+        if (sceneType & S_TERRAIN)
+            terrain.display(rt);
 
-        //glColor3f(1.0, 0.0, 0.0);
-        //glBegin(GL_TRIANGLES);
-            //glVertex2f(0.0, 0.7);
-            //glVertex2f(0.7, -0.7);
-            //glVertex2f(-0.7, -0.7);
-        //glEnd();
+        if (sceneType & S_TRIANGLES)
+            triangles.display(rt);
 
         glFlush();
     }
@@ -106,7 +115,8 @@ class Game
 
     Game(unsigned w, unsigned h, bool fullscreen = false)
         : screenWidth(w), screenHeight(h), keyPressed(SDLK_LAST, false),
-          fullScreen(fullscreen), terrain(), rt(Terrain::RT_VBO)
+          fullScreen(fullscreen), terrain(), rt(Scene::RT_VBO),
+          sceneType(S_ALL)
     {
         srand(time(0));
     }
@@ -128,6 +138,7 @@ class Game
         SDL_WM_SetCaption(PACKAGE_STRING, NULL);
 
         terrain.loadFromSTRM(filename);
+        triangles.init();
 
         initGL();
 

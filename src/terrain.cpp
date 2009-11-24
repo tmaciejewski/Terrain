@@ -30,7 +30,7 @@ Terrain::Terrain()
 
 Terrain::~Terrain()
 {
-    freeVertices();
+
 }
 
 void Terrain::loadFromSTRM(const char *filename)
@@ -134,13 +134,12 @@ void Terrain::displayBE()
         {
             int index = 3 * (i * 2 * w + j);
 
-            glColor3f(colors[index], colors[index + 1], colors[index + 2]);
-            glVertex3f(vertices[index], vertices[index + 1], vertices[index + 2]);
+            glColor3fv(colors + index);
+            glVertex3fv(vertices + index);
         }
         glEnd();
     }
 }
-
 
 void Terrain::displayVA()
 {
@@ -158,7 +157,6 @@ void Terrain::displayVBO()
     glColorPointer(3, GL_FLOAT, sizeof(GLfloat)*3, 0);
     drawArrays();
 }
-
 
 void Terrain::drawArrays()
 {
