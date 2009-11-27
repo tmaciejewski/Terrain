@@ -110,9 +110,9 @@ class Game
 
     public:
 
-    Game(unsigned w, unsigned h, bool fullscreen = false)
+    Game(unsigned w, unsigned h, unsigned n, unsigned skip)
         : screenWidth(w), screenHeight(h), keyPressed(SDLK_LAST, false),
-          fullScreen(fullscreen), terrain(), rt(Scene::RT_VBO),
+          fullScreen(false), terrain(skip), triangles(n), rt(Scene::RT_VBO),
           sceneType(S_ALL)
     {
         srand(time(0));
@@ -135,7 +135,7 @@ class Game
         SDL_WM_SetCaption(PACKAGE_STRING, NULL);
 
         terrain.loadFromSTRM(filename);
-        triangles.init(100);
+        triangles.init();
 
         initGL();
 
@@ -149,7 +149,7 @@ class Game
             ticks += SDL_GetTicks() - t;
             ++frames;
 
-            if (ticks > 1000 || frames > 100)
+            if (ticks > 1000 || frames > 50)
             {
                 std::string s;
                 std::ostringstream str;
@@ -183,7 +183,7 @@ class Game
                 }
             }
 
-            usleep(50000);
+            usleep(20000);
         }
 
         SDL_Quit();
@@ -194,6 +194,9 @@ class Game
 
 int main(int argc, char **argv)
 {
-    Game game(600, 600);
+    if (argc < 4)
+        return 0;
+
+    Game game(600, 600, atoi(argv[2]), atoi(argv[3]));
     return game.run(argc < 2 ? "N45E006.hgt" : argv[1]);
 }

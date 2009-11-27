@@ -22,8 +22,9 @@
 #include <fstream>
 #include <iostream>
 #include <climits>
+#include <cmath>
 
-Terrain::Terrain()
+Terrain::Terrain(unsigned s) : skip(s)
 {
 
 }
@@ -39,19 +40,25 @@ void Terrain::loadFromSTRM(const char *filename)
     std::ifstream file(filename);
     heights.clear();
     freeVertices();
-    for (int i = 0; i < 1201*1201; ++i)
+
+    for (int i = 0; i < 1201; ++i)
     {
-        char a, b;
-        file.get(a).get(b);
-        x = a;
-        x <<= 8;
-        x += b;
-        if (x == SHRT_MIN)
-            x = heights.back();
-        heights.push_back(x);
+        for (int j = 0; j < 1201; ++j)
+        {
+            char a, b;
+            file.get(a).get(b);
+            x = a;
+            x <<= 8;
+            x += b;
+            if (x == SHRT_MIN)
+                x = heights.back();
+
+            if (j % skip == 0 && i % skip == 0)
+                heights.push_back(x);
+        }
     }
 
-    w = h = 1201;
+    w = h = sqrt(heights.size());
 
     createVertices();
 }
@@ -152,9 +159,9 @@ void Terrain::displayVA()
 void Terrain::displayVBO()
 {
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
-    glVertexPointer(3, GL_FLOAT, sizeof(GLfloat)*3, 0);
+    glVertexPointer(3, GL_FLOAT, sizeof(GLfloat) * 3, 0);
     glBindBuffer(GL_ARRAY_BUFFER, color_buffer);
-    glColorPointer(3, GL_FLOAT, sizeof(GLfloat)*3, 0);
+    glColorPointer(3, GL_FLOAT, sizeof(GLfloat) * 3, 0);
     drawArrays();
 }
 
@@ -165,7 +172,7 @@ void Terrain::drawArrays()
 
     for (unsigned i = 0; i < h - 1; ++i)
     {
-        glDrawArrays(GL_QUAD_STRIP, i*2*w, 2*w);
+        glDrawArrays(GL_QUAD_STRIP, i * 2 * w, 2 * w);
     }
 
     glDisableClientState(GL_VERTEX_ARRAY);

@@ -21,8 +21,8 @@
 #include "triangles.h"
 #include <cstdlib>
 
-Triangles::Triangles()
-    : Scene()
+Triangles::Triangles(unsigned n)
+    : Scene(), triangles(n)
 {
     srand(0);
 }

@@ -31,14 +31,14 @@ class Terrain : public Scene
 {
     public:
 
-        Terrain();
+        Terrain(unsigned s = 1);
         virtual ~Terrain();
 
         void loadFromSTRM(const char *filename);
 
     private:
 
-        unsigned w, h;
+        unsigned w, h, skip;
         std::vector<int> heights;
 
         void displayBE();

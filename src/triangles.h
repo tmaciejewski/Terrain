@@ -26,9 +26,9 @@
 class Triangles: public Scene
 {
     public:
-        Triangles();
+        Triangles(unsigned n);
 
-        void init(unsigned n) { triangles = n ; freeVertices(); createVertices(); }
+        void init() { freeVertices(); createVertices(); }
 
     private:
 
