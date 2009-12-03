@@ -176,9 +176,9 @@ class Game
     {
         SDL_Event event;
         unsigned frames = 0, time = 0;
-        float seconds;
+        float seconds = 0.0;
 
-        while (!keyPressed[SDLK_ESCAPE] && event.type != SDL_QUIT && time < 3000)
+        while (!keyPressed[SDLK_ESCAPE] && event.type != SDL_QUIT && frames < 100)
         {
             int now = SDL_GetTicks();
             display();
@@ -206,10 +206,10 @@ class Game
             }
         }
 
-        seconds = (1000.0 * frames) / time;
+        seconds = time / 1000.0;
 
-        std::cout << "displayed " << frames << " in " << seconds
-            << "seconds (" << frames / seconds << " FPS)\n";
+        std::cout << "displayed " << frames << " frames in " << seconds
+            << " seconds (" << frames / seconds << " FPS)\n";
     }
 
     public:
