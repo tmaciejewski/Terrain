@@ -36,7 +36,7 @@ class Game
 {
     GLsizei screenWidth, screenHeight;
     std::vector<bool> keyPressed;
-    bool fullScreen;
+    bool isometric;
     Terrain terrain;
     Triangles triangles;
     Scene::RenderType rt;
@@ -58,6 +58,12 @@ class Game
             rt = Scene::RT_VA;
         else if (keyPressed['7'])
             rt = Scene::RT_VBO;
+
+        if (keyPressed['i'])
+        {
+            isometric = !isometric;
+            keyPressed['i'] = 0;
+        }
     }
 
     void resize()
@@ -77,7 +83,8 @@ class Game
 
         glLoadIdentity();
 
-        gluLookAt(3.0, 2.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+        if (isometric)
+            gluLookAt(3.0, 2.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
 
         if (sceneType & S_TERRAIN)
             terrain.display(rt);
@@ -93,7 +100,7 @@ class Game
     SDL_Surface * setVideoMode()
     {
         SDL_Surface *surface;
-        int flags = SDL_OPENGL | SDL_RESIZABLE | (fullScreen ? SDL_FULLSCREEN : 0);
+        int flags = SDL_OPENGL | SDL_RESIZABLE;
         if ((surface = SDL_SetVideoMode(screenWidth, screenHeight, 0, flags)) == NULL)
         {
             std::cerr << "Unable to create OpenGL screen: " << SDL_GetError() << '\n';
@@ -117,7 +124,7 @@ class Game
 
     Game(unsigned w, unsigned h, unsigned n, unsigned skip)
         : screenWidth(w), screenHeight(h), keyPressed(SDLK_LAST, false),
-          fullScreen(false), terrain(skip), triangles(n), rt(Scene::RT_VBO),
+          isometric(true), terrain(skip), triangles(n), rt(Scene::RT_VBO),
           sceneType(S_ALL)
     {
         srand(time(0));

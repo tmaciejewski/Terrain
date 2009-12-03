@@ -49,12 +49,10 @@ void Terrain::loadFromSTRM(const char *filename)
             file.get(a).get(b);
             x = a;
             x <<= 8;
-            x += b;
-            if (x == SHRT_MIN)
-                x = heights.back();
+            x += (unsigned char) b;
 
-            if (x <= 0)
-                std::cout << i << ' ' << j << ": "<< x << std::endl;
+            if (x == -32768)
+                x = heights.back();
 
             if (j % skip == 0 && i % skip == 0)
                 heights.push_back(x);
