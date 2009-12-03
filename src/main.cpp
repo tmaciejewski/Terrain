@@ -40,6 +40,7 @@ class Game
     Terrain terrain;
     Triangles triangles;
     Scene::RenderType rt;
+    SDL_Surface *surface;
 
     enum SceneType {S_ALL = 3, S_TERRAIN = 2, S_TRIANGLES = 1} sceneType;
 
@@ -94,7 +95,7 @@ class Game
         if (sceneType & S_TRIANGLES)
             triangles.display(rt);
 
-        glFlush();
+        SDL_GL_SwapBuffers();
     }
 
     SDL_Surface * setVideoMode()
@@ -120,37 +121,10 @@ class Game
         glDepthFunc(GL_LEQUAL);
     }
 
-    public:
-
-    Game(unsigned w, unsigned h, unsigned n, unsigned skip)
-        : screenWidth(w), screenHeight(h), keyPressed(SDLK_LAST, false),
-          isometric(true), terrain(skip), triangles(n), rt(Scene::RT_VBO),
-          sceneType(S_ALL)
+    void interactiveRun()
     {
-        srand(time(0));
-    }
-
-    int run(const char *filename)
-    {
-        SDL_Surface *surface = NULL;
         SDL_Event event;
         unsigned frames = 0, ticks = 0;
-
-        if (SDL_Init(SDL_INIT_VIDEO) < 0)
-        {
-            std::cerr << "Unable to initialize SDL: " << SDL_GetError() << '\n';
-            return -1;
-        }
-
-        surface = setVideoMode();
-
-        SDL_WM_SetCaption(PACKAGE_STRING, NULL);
-
-        terrain.loadFromSTRM(filename);
-        triangles.init();
-
-        initGL();
-        resize();
 
         while (!keyPressed[SDLK_ESCAPE] && event.type != SDL_QUIT)
         {
@@ -174,8 +148,6 @@ class Game
                 SDL_WM_SetCaption(s.c_str(), NULL);
             }
 
-            SDL_GL_SwapBuffers();
-
             while (SDL_PollEvent(&event))
             {
                 if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)
@@ -198,6 +170,80 @@ class Game
 
             usleep(20000);
         }
+    }
+
+    void benchmarkRun()
+    {
+        SDL_Event event;
+        unsigned frames = 0, time = 0;
+        float seconds;
+
+        while (!keyPressed[SDLK_ESCAPE] && event.type != SDL_QUIT && time < 3000)
+        {
+            int now = SDL_GetTicks();
+            display();
+            time += SDL_GetTicks() - now;
+            ++frames;
+
+            while (SDL_PollEvent(&event))
+            {
+                if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)
+                {
+                    keyPressed[event.key.keysym.sym] = static_cast<bool>(event.key.state);
+                }
+
+                if (event.type == SDL_VIDEORESIZE)
+                {
+                    screenWidth = event.resize.w;
+                    screenHeight = event.resize.h;
+
+                    if (surface)
+                        SDL_FreeSurface(surface);
+
+                    surface = setVideoMode();
+                    resize();
+                }
+            }
+        }
+
+        seconds = (1000.0 * frames) / time;
+
+        std::cout << "displayed " << frames << " in " << seconds
+            << "seconds (" << frames / seconds << " FPS)\n";
+    }
+
+    public:
+
+    Game(unsigned w, unsigned h, unsigned n, unsigned skip)
+        : screenWidth(w), screenHeight(h), keyPressed(SDLK_LAST, false),
+          isometric(true), terrain(skip), triangles(n), rt(Scene::RT_VBO),
+          surface(NULL), sceneType(S_ALL)
+    {
+        srand(time(0));
+    }
+
+    int run(const char *filename, bool interactive = true)
+    {
+        if (SDL_Init(SDL_INIT_VIDEO) < 0)
+        {
+            std::cerr << "Unable to initialize SDL: " << SDL_GetError() << '\n';
+            return -1;
+        }
+
+        surface = setVideoMode();
+
+        SDL_WM_SetCaption(PACKAGE_STRING, NULL);
+
+        terrain.loadFromSTRM(filename);
+        triangles.init();
+
+        initGL();
+        resize();
+
+        if (interactive)
+            interactiveRun();
+        else
+            benchmarkRun();
 
         SDL_Quit();
 
@@ -208,6 +254,7 @@ class Game
 int main(int argc, char **argv)
 {
     int skip, n;
+    bool interactive = true;
 
     if (argc < 4)
         skip = 1;
@@ -215,10 +262,13 @@ int main(int argc, char **argv)
         skip = atoi(argv[3]);
 
     if (argc < 3)
+    {
         n = 100;
+        interactive = false;
+    }
     else
         n = atoi(argv[2]);
 
     Game game(600, 600, n, skip);
-    return game.run(argc < 2 ? "N45E006.hgt" : argv[1]);
+    return game.run(argc < 2 ? "N45E006.hgt" : argv[1], interactive);
 }
