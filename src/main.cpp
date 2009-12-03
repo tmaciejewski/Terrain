@@ -66,7 +66,8 @@ class Game
         glViewport(0, 0, screenWidth, screenHeight);
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
-        glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
+        glOrtho(-1.0, 1.0, -1.0, 1.0, -10.0, 10.0);
+        //gluPerspective(60.0, screenWidth / screenHeight, 1.0, 10.0);
         glMatrixMode(GL_MODELVIEW);
     }
 
@@ -76,8 +77,12 @@ class Game
 
         glLoadIdentity();
 
+        gluLookAt(3.0, 2.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+
         if (sceneType & S_TERRAIN)
             terrain.display(rt);
+
+        glLoadIdentity();
 
         if (sceneType & S_TRIANGLES)
             triangles.display(rt);
@@ -138,6 +143,7 @@ class Game
         triangles.init();
 
         initGL();
+        resize();
 
         while (!keyPressed[SDLK_ESCAPE] && event.type != SDL_QUIT)
         {
@@ -194,9 +200,18 @@ class Game
 
 int main(int argc, char **argv)
 {
-    if (argc < 4)
-        return 0;
+    int skip, n;
 
-    Game game(600, 600, atoi(argv[2]), atoi(argv[3]));
+    if (argc < 4)
+        skip = 1;
+    else
+        skip = atoi(argv[3]);
+
+    if (argc < 3)
+        n = 100;
+    else
+        n = atoi(argv[2]);
+
+    Game game(600, 600, n, skip);
     return game.run(argc < 2 ? "N45E006.hgt" : argv[1]);
 }

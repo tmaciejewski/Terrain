@@ -36,7 +36,7 @@ Terrain::~Terrain()
 
 void Terrain::loadFromSTRM(const char *filename)
 {
-    int x;
+    int16_t x;
     std::ifstream file(filename);
     heights.clear();
     freeVertices();
@@ -52,6 +52,9 @@ void Terrain::loadFromSTRM(const char *filename)
             x += b;
             if (x == SHRT_MIN)
                 x = heights.back();
+
+            if (x <= 0)
+                std::cout << i << ' ' << j << ": "<< x << std::endl;
 
             if (j % skip == 0 && i % skip == 0)
                 heights.push_back(x);
