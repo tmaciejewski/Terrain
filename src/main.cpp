@@ -31,6 +31,13 @@
 #include "../config.h"
 #include "terrain.h"
 #include "triangles.h"
+#include "arcball/ArcBall.h"
+
+Matrix4fT   Transform;
+Matrix3fT   LastRot;
+Matrix3fT   ThisRot;
+ArcBallT    ArcBall(640.0f, 480.0f);
+
 
 class Game
 {
@@ -86,6 +93,8 @@ class Game
 
         if (isometric)
             gluLookAt(3.0, 2.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+
+        glMultMatrixf(Transform.M);
 
         if (sceneType & S_TERRAIN)
             terrain.display(rt);
@@ -166,6 +175,28 @@ class Game
                     surface = setVideoMode();
                     resize();
                 }
+
+                if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT)
+                {
+                    Point2fT p;
+                    p.s.X = event.button.x;
+                    p.s.Y = event.button.y;
+                    LastRot = ThisRot;
+                    ArcBall.click(&p);
+                }
+
+                if (event.type == SDL_MOUSEMOTION && event.motion.state & SDL_BUTTON(SDL_BUTTON_LEFT))
+                {
+                    Quat4fT ThisQuat;
+                    Point2fT p;
+                    p.s.X = event.button.x;
+                    p.s.Y = event.button.y;
+
+                    ArcBall.drag(&p, &ThisQuat);
+                    Matrix3fSetRotationFromQuat4f(&ThisRot, &ThisQuat);
+                    Matrix3fMulMatrix3f(&ThisRot, &LastRot);
+                    Matrix4fSetRotationFromMatrix3f(&Transform, &ThisRot);
+                }
             }
 
             usleep(20000);
@@ -226,9 +257,15 @@ class Game
     Game(unsigned w, unsigned h, unsigned n, unsigned skip)
         : screenWidth(w), screenHeight(h), keyPressed(SDLK_LAST, false),
           isometric(true), terrain(skip), triangles(n), rt(Scene::RT_VBO),
-          surface(NULL), sceneType(S_ALL)
+          surface(NULL), sceneType(S_TERRAIN)
     {
         srand(time(0));
+
+        for (int i = 0; i < 16; ++i)
+            Transform.M[i] = (i % 5 == 0 ? 1.0 : 0.0);
+
+        Matrix3fSetIdentity(&LastRot);
+        Matrix3fSetIdentity(&ThisRot);
     }
 
     int run(const char *filename, bool interactive = true)
