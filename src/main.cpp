@@ -123,7 +123,7 @@ class Game
 
     void interactiveRun()
     {
-        SDL_Event event;
+        SDL_Event event = {0};
         unsigned frames = 0, ticks = 0;
 
         while (!keyPressed[SDLK_ESCAPE] && event.type != SDL_QUIT)
@@ -172,44 +172,53 @@ class Game
         }
     }
 
-    void benchmarkRun()
+    void benchmark()
     {
-        SDL_Event event;
         unsigned frames = 0, time = 0;
         float seconds = 0.0;
 
-        while (!keyPressed[SDLK_ESCAPE] && event.type != SDL_QUIT && frames < 100)
+        time = SDL_GetTicks();
+
+        while ((SDL_GetTicks() - time) < 3000)
         {
-            int now = SDL_GetTicks();
             display();
-            time += SDL_GetTicks() - now;
             ++frames;
-
-            while (SDL_PollEvent(&event))
-            {
-                if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)
-                {
-                    keyPressed[event.key.keysym.sym] = static_cast<bool>(event.key.state);
-                }
-
-                if (event.type == SDL_VIDEORESIZE)
-                {
-                    screenWidth = event.resize.w;
-                    screenHeight = event.resize.h;
-
-                    if (surface)
-                        SDL_FreeSurface(surface);
-
-                    surface = setVideoMode();
-                    resize();
-                }
-            }
         }
 
-        seconds = time / 1000.0;
+        seconds = (SDL_GetTicks() - time) / 1000.0;
 
         std::cout << "displayed " << frames << " frames in " << seconds
-            << " seconds (" << frames / seconds << " FPS)\n";
+            << " seconds (" << frames / seconds << " FPS)" << std::endl;
+    }
+
+    void benchmarkMode()
+    {
+        sceneType = S_TRIANGLES;
+        std::cout << "Scene 1... ";
+        benchmark();
+
+        sceneType = S_TERRAIN;
+        std::cout << "Scene 2... ";
+        benchmark();
+
+        sceneType = S_ALL;
+        std::cout << "Scene 1 + 2... ";
+        benchmark();
+    }
+
+    void benchmarkRun()
+    {
+        rt = Scene::RT_BE;
+        std::cout << "===== Benchmarking glBegin/glEnd mode ======" << std::endl;
+        benchmarkMode();
+
+        rt = Scene::RT_VA;
+        std::cout << "\n===== Benchmarking Vertex Array mode ======" << std::endl;
+        benchmarkMode();
+
+        rt = Scene::RT_VBO;
+        std::cout << "\n===== Benchmarking Vertex Buffer Object mode ======" << std::endl;
+        benchmarkMode();
     }
 
     public:
@@ -264,10 +273,12 @@ int main(int argc, char **argv)
     if (argc < 3)
     {
         n = 100;
-        interactive = false;
     }
     else
+    {
         n = atoi(argv[2]);
+        interactive = false;
+    }
 
     Game game(600, 600, n, skip);
     return game.run(argc < 2 ? "N45E006.hgt" : argv[1], interactive);
