@@ -205,18 +205,22 @@ class Game
 
     void benchmark()
     {
-        unsigned frames = 0, time = 0;
+        unsigned frames = 0, time = 0, start;
         float seconds = 0.0;
 
-        time = SDL_GetTicks();
+        start = SDL_GetTicks();
 
-        while ((SDL_GetTicks() - time) < 3000)
+        while (SDL_GetTicks() - start < 5000)
         {
+            unsigned temp = SDL_GetTicks();
             display();
+            time += SDL_GetTicks() - temp;
             ++frames;
+
+            usleep(20000);
         }
 
-        seconds = (SDL_GetTicks() - time) / 1000.0;
+        seconds = time / 1000.0;
 
         std::cout << "displayed " << frames << " frames in " << seconds
             << " seconds (" << frames / seconds << " FPS)" << std::endl;
@@ -309,7 +313,7 @@ int main(int argc, char **argv)
 
     if (argc < 3)
     {
-        n = 100;
+        n = 1000;
     }
     else
     {
