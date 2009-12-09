@@ -100,7 +100,7 @@ class Game
             terrain.display(rt);
 
         glLoadIdentity();
-
+        glTranslatef(0.0, 0.0, -10.0);
         if (sceneType & S_TRIANGLES)
             triangles.display(rt);
 
@@ -257,7 +257,7 @@ class Game
     Game(unsigned w, unsigned h, unsigned n, unsigned skip)
         : screenWidth(w), screenHeight(h), keyPressed(SDLK_LAST, false),
           isometric(true), terrain(skip), triangles(n), rt(Scene::RT_VBO),
-          surface(NULL), sceneType(S_TERRAIN)
+          surface(NULL), sceneType(S_TRIANGLES)
     {
         srand(time(0));
 
