@@ -257,7 +257,7 @@ class Game
     Game(unsigned w, unsigned h, unsigned n, unsigned skip)
         : screenWidth(w), screenHeight(h), keyPressed(SDLK_LAST, false),
           isometric(true), terrain(skip), triangles(n), rt(Scene::RT_VBO),
-          surface(NULL), sceneType(S_TRIANGLES)
+          surface(NULL), sceneType(S_ALL)
     {
         srand(time(0));
 
