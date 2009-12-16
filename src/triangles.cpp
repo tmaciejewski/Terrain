@@ -52,7 +52,7 @@ void Triangles::createVertices()
         {
             int first = i - (i % 9);
             float f1 = rand() / (float) RAND_MAX, f2 = rand() / (float) RAND_MAX;
-            f1 = 0.8 * f1 - 0.4; f2 = 0.8 * f2 - 0.4;
+            f1 = 0.08 * f1 - 0.04; f2 = 0.08 * f2 - 0.04;
             vertices[i] = vertices[first] + f1;
             vertices[i + 1] = vertices[first + 1] + f2;
         }
